@@ -23,7 +23,7 @@ int main (void)
   raizN = sqrt(N);
   
   inicio = omp_get_wtime();
-  #pragma omp parallel num_threads(2)
+  #pragma omp parallel num_threads(3)
   {
     #pragma omp for
       for (i = 2; i <= raizN; i++){
