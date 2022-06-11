@@ -3,6 +3,7 @@
 #include <math.h>
 #include <omp.h>
 #include <time.h>
+#define N 1000000
 
 int *gerar_vetor(int n);
 void imprimir_vetor(int *vetor, int n);
@@ -12,12 +13,9 @@ int main (void)
   time_t t;
   srand((unsigned) time(&t));
   double inicio,fim;
-  int i, j, N, raizN; 
+  int i, j, raizN; 
   int *v;
-    
-  printf("\nValor de N: ");
-  scanf("%d", &N);
-
+  
   v = gerar_vetor(N);
    
   raizN = sqrt(N);
