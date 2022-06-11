@@ -1,33 +1,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <omp.h>
+#include <time.h>
+#define N 1000000
 
 int *gerar_vetor(int n);
 void imprimir_vetor(int *vetor, int n);
 
 int main (void)
 {
-  int i, j, N, raizN; 
+  time_t t;
+  srand((unsigned) time(&t));
+  double inicio,fim;
+  int i, j, raizN; 
   int *v;
-    
-  printf("\nValor de N: ");
-  scanf("%d", &N);
-
+  
   v = gerar_vetor(N);
    
   raizN = sqrt(N);
-
-  // PARALELIZAR COM OPENMP
-   for (i = 2; i <= raizN; i++){
-      if (v[i] == 1){
-         for (j = i+i; j <= N; j+=i){
+  
+  inicio = omp_get_wtime();
+  #pragma omp parallel num_threads(3)
+  {
+    #pragma omp for
+      for (i = 2; i <= raizN; i++){
+        if (v[i] == 1){
+          for (j = i+i; j <= N; j+=i){
             v[j] = 0;
-         }
+          }
+        }
       }
-   }
-  // ATÉ AQUI
-
+  }  
+  fim = omp_get_wtime();
   imprimir_vetor(v, N);
+  printf("Tempo: %f\n", fim-inicio);
 
   return 0;
 }
