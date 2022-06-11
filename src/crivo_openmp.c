@@ -31,6 +31,7 @@ int main (void)
           }
         }
       }
+  }  
   fim = omp_get_wtime();
   imprimir_vetor(v, N);
   printf("Tempo: %f\n", fim-inicio);
