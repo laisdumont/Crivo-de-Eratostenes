@@ -1,14 +1,14 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <math.h>
+
+#define N 100000000
 
 int *gerar_vetor(int n, int r);
 void imprimir_vetor(int *vetor, int n);
 
-int main() {
-
+    int main(int argc, char** argv) {
     //Iniciando MPI
     MPI_Init(NULL, NULL);
     int nprocs;
@@ -17,62 +17,74 @@ int main() {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Status status;
     
-    time_t t;
-    srand(time(NULL)*rank);
-    int i, j, N, raizN, tam_vet, x = 0; 
-    int *v, *primos;
-    
-    primos = (int *)malloc(sizeof(int) * N);
+    // /*
+    // INICIO
+    // */
 
-    printf("\nValor de N: ");
-    scanf("%d", &N);
+    int i = 2, j, raizN, tam_vet, ponto = 0; 
+    int *v, *primos;
+    double inicio, fim;
+
+    inicio = MPI_Wtime();
 
     raizN = sqrt(N);
-    tam_vet = N/rank;
+    tam_vet = (int)(N/nprocs);
     v = gerar_vetor(tam_vet, rank);
 
-    /*
-    INICIO
-    */
-    do{
-        i = 2;
-
+    while(i <= raizN){
         if(rank == 0 && v[i] == 1){
-            x = 1;
+            ponto = 1;
         } else{
-            x = 0;
+            ponto = 0;
         }
 
-        MPI_Bcast(&x,1,MPI_INT,0,MPI_COMM_WORLD);
+        MPI_Bcast(&ponto, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-        if(x == 1){
+        if(ponto == 1){
             if(rank == 0){
-                for(j = i+i; j <= N; j+=i){
+                for(j = i+i; j < tam_vet; j+=i){
                     v[j] = 0;
                 }
             } else{
-                for(j = 0; j <= N; j++){
-                    if(j%i == 0){
-                        v[j] = 0;
+                int passo;
+
+                for(j = 0; j < tam_vet; j++){
+                    if((j+(rank*tam_vet))%i == 0){
+                        passo = j;
+                        break;
                     }
+                }
+
+                for(j = passo; j < tam_vet; j+=i){
+                    v[j] = 0;
                 }
             }
         }
 
         i++;
 
-    } while(i <= raizN);
+    }
 
-    MPI_Gather(&v, 1, MPI_INT, primos, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    if(rank == 0){
+        primos = (int *)malloc(sizeof(int) * N);
+    }
+
+    MPI_Gather(v, tam_vet, MPI_INT, primos, tam_vet, MPI_INT, 0, MPI_COMM_WORLD);
+
+    fim = MPI_Wtime();
 
     /*
     FIM
     */
+
     if(rank == 0){
-        imprimir_vetor(primos, N);
+        printf("\nTempo final = %f\n", fim-inicio);
+        // imprimir_vetor(primos, N);
     }
     
+
     MPI_Finalize();
+
     return 0;
 }
 
@@ -81,21 +93,18 @@ int *gerar_vetor(int n, int r){
     int i;
     vetor = (int *)malloc(sizeof(int) * n);
 
-    if(r == 0){
         for (i = 2; i < n; i++){
+            if(r == 0 && i < 2){
+                vetor[i] = 0;
+            }
             vetor[i] = 1;
         }
-    } else{
-        for (i = n * r; i < n; i++){
-            vetor[i] = 1;
-        }
-    }
 
     return vetor;
 }
 
 void imprimir_vetor(int *vetor, int n){
-   for (int i = 1; i <= n; i++){
+   for (int i = 0; i < n; i++){
       if(vetor[i] == 1){
          printf("%d\n", i);
       }
