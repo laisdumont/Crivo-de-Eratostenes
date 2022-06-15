@@ -17,9 +17,9 @@ void imprimir_vetor(int *vetor, int n);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Status status;
     
-    // /*
-    // INICIO
-    // */
+    /*
+    INICIO
+    */
 
     int i = 2, j, raizN, tam_vet, ponto = 0; 
     int *v, *primos;
