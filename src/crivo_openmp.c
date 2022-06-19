@@ -10,8 +10,6 @@ void imprimir_vetor(int *vetor, int n);
 
 int main (void)
 {
-  time_t t;
-  srand((unsigned) time(&t));
   double inicio,fim;
   int i, j, raizN; 
   int *v;
